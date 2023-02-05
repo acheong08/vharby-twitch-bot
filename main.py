@@ -46,8 +46,6 @@ class Bot(commands.Bot):
             await context.send(f'{msg_details.author}: {msg_details.message}')
         elif msg_details.isYouTube and msg_details.message.startswith("!"):
             await context.send(msg_details.message)
-        else:
-            print(f'{msg_details.author}: {msg_details.message}')
     
     async def handle_commands(self, context: commands.Context, msg_details: CustomMsgDetails):
         # Split the message into command and arguments
