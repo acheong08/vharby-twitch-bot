@@ -1,2 +1,2 @@
 # vharby-twitch-bot
-Sleepyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
+Generic description I'm too sleepy to write
