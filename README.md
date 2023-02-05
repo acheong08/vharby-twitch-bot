@@ -12,3 +12,6 @@ Generic description I'm too sleepy to write
 - Forwards nightbot responses from Twitch to YouTube
 ## Commands
 - `%chatgpt <message>` - Send a message to the chatbot
+
+> # Disclaimer
+> Only works for youtube.com/@virtualharby
