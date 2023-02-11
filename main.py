@@ -3,7 +3,7 @@ from twitchio.message import Message
 import os
 import re
 
-from revChatGPT.Official import AsyncChatbot
+from EdgeGPT import Chatbot
 
 
 class CustomMsgDetails:
@@ -12,18 +12,22 @@ class CustomMsgDetails:
         self.author: str = None
         self.isYouTube: bool = False
 
-class Bot(commands.Bot):
 
+class Bot(commands.Bot):
     def __init__(self):
         # Initialise our Bot with our access token, prefix and a list of channels to join on boot...
-        super().__init__(token=os.environ.get("access_token"), prefix='<BOT>', initial_channels=['virtualharby'])
-        self.bot = AsyncChatbot(api_key=os.environ.get("openai_key"))
+        super().__init__(
+            token=os.environ.get("access_token"),
+            prefix="<BOT>",
+            initial_channels=["virtualharby"],
+        )
+        self.bot = Chatbot()
 
     async def event_ready(self):
         # We are logged in and ready to chat and use commands...
-        print(f'Logged in as | {self.nick}')
-        print(f'User id is | {self.user_id}')
-    
+        print(f"Logged in as | {self.nick}")
+        print(f"User id is | {self.user_id}")
+
     async def event_message(self, message: Message) -> None:
         if message.echo:
             return
@@ -36,26 +40,33 @@ class Bot(commands.Bot):
             msg_details.author = yt_match.group(1)
             msg_details.isYouTube = True
             # replace [YouTube: *] with nothing
-            msg_details.message = message.content.replace(f"[YouTube: {msg_details.author}] ", "").rstrip()
+            msg_details.message = message.content.replace(
+                f"[YouTube: {msg_details.author}] ", ""
+            ).rstrip()
         else:
             msg_details.author = message.author.name
 
         if msg_details.message.startswith("&"):
             await self.handle_commands(context, msg_details)
         elif msg_details.author == "nightbot":
-            await context.send(f'{msg_details.author}: {msg_details.message}')
+            await context.send(f"{msg_details.author}: {msg_details.message}")
         elif msg_details.isYouTube and msg_details.message.startswith("!"):
             await context.send(msg_details.message)
-    
-    async def handle_commands(self, context: commands.Context, msg_details: CustomMsgDetails):
+
+    async def handle_commands(
+        self, context: commands.Context, msg_details: CustomMsgDetails
+    ):
         # Split the message into command and arguments
         command, *args = msg_details.message.split(" ")
         if command == "&chatgpt":
-            res = await self.bot.ask(user_request=" ".join(args))["choices"][0]["text"]
+            res = (
+                await self.bot.ask(prompt=" ".join(args))["item"]["messages"][1][
+                    "adaptiveCards"
+                ][0]["body"][0]["text"],
+            )
             if len(res) > 500:
                 for i in range(0, len(res), 500):
-                    await context.send(f'ChatGPT: {res[i:i + 500]}')
-        
+                    await context.send(f"ChatGPT: {res[i:i + 500]}")
 
 
 bot = Bot()
