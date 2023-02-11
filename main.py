@@ -61,8 +61,8 @@ class Bot(commands.Bot):
         if command == "&chatgpt":
             res = (
                 await self.bot.ask(prompt=" ".join(args))["item"]["messages"][1][
-                    "adaptiveCards"
-                ][0]["body"][0]["text"],
+                    "text"
+                ],
             )
             if len(res) > 500:
                 for i in range(0, len(res), 500):
