@@ -3,7 +3,7 @@ from twitchio.message import Message
 import os
 import re
 
-from EdgeGPT import Chatbot
+from revChatGPT.V2 import Chatbot
 
 
 class CustomMsgDetails:
@@ -21,7 +21,7 @@ class Bot(commands.Bot):
             prefix="<BOT>",
             initial_channels=["virtualharby"],
         )
-        self.bot = Chatbot()
+        self.bot = Chatbot(os.environ.get("email"), os.environ.get("password"))
 
     async def event_ready(self):
         # We are logged in and ready to chat and use commands...
@@ -59,14 +59,12 @@ class Bot(commands.Bot):
         # Split the message into command and arguments
         command, *args = msg_details.message.split(" ")
         if command == "&chatgpt":
-            res = (
-                await self.bot.ask(prompt=" ".join(args))["item"]["messages"][1][
-                    "text"
-                ],
-            )
-            if len(res) > 500:
-                for i in range(0, len(res), 500):
-                    await context.send(f"ChatGPT: {res[i:i + 500]}")
+            full_response = ""
+            async for message in self.bot.ask(prompt=" ".join(args)):
+                full_response += message
+            if len(full_response) > 500:
+                for i in range(0, len(full_response), 500):
+                    await context.send(f"ChatGPT: {full_response[i:i + 500]}")
 
 
 bot = Bot()
