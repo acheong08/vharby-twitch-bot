@@ -61,7 +61,7 @@ class Bot(commands.Bot):
         if command == "&chatgpt":
             full_response = ""
             async for message in self.bot.ask(prompt=" ".join(args)):
-                full_response += message
+                full_response += message["choices"][0]["text"].replace("<|im_end|>", "")
             if len(full_response) > 500:
                 for i in range(0, len(full_response), 500):
                     await context.send(f"ChatGPT: {full_response[i:i + 500]}")
