@@ -19,7 +19,7 @@ class Bot(commands.Bot):
             prefix="<BOT>",
             initial_channels=["virtualharby"],
         )
-        self.bot = Chatbot(os.environ.get("email"), os.environ.get("password"))
+        # self.bot = Chatbot(os.environ.get("email"), os.environ.get("password"))
 
     async def event_ready(self):
         # We are logged in and ready to chat and use commands...
