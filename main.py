@@ -3,8 +3,6 @@ from twitchio.message import Message
 import os
 import re
 
-from revChatGPT.V2 import Chatbot
-
 
 class CustomMsgDetails:
     def __init__(self):
@@ -46,25 +44,25 @@ class Bot(commands.Bot):
         else:
             msg_details.author = message.author.name
 
-        if msg_details.message.startswith("&"):
-            await self.handle_commands(context, msg_details)
-        elif msg_details.author == "nightbot":
+        # if msg_details.message.startswith("&"):
+        #     await self.handle_commands(context, msg_details)
+        if msg_details.author == "nightbot":
             await context.send(f"{msg_details.author}: {msg_details.message}")
         elif msg_details.isYouTube and msg_details.message.startswith("!"):
             await context.send(msg_details.message)
 
-    async def handle_commands(
-        self, context: commands.Context, msg_details: CustomMsgDetails
-    ):
-        # Split the message into command and arguments
-        command, *args = msg_details.message.split(" ")
-        if command == "&chatgpt":
-            full_response = ""
-            async for message in self.bot.ask(prompt=" ".join(args)):
-                full_response += message["choices"][0]["text"].replace("<|im_end|>", "")
-            if len(full_response) > 500:
-                for i in range(0, len(full_response), 500):
-                    await context.send(f"ChatGPT: {full_response[i:i + 500]}")
+    # async def handle_commands(
+    #     self, context: commands.Context, msg_details: CustomMsgDetails
+    # ):
+    #     # Split the message into command and arguments
+    #     command, *args = msg_details.message.split(" ")
+    #     if command == "&chatgpt":
+    #         full_response = ""
+    #         async for message in self.bot.ask(prompt=" ".join(args)):
+    #             full_response += message["choices"][0]["text"].replace("<|im_end|>", "")
+    #         if len(full_response) > 500:
+    #             for i in range(0, len(full_response), 500):
+    #                 await context.send(f"ChatGPT: {full_response[i:i + 500]}")
 
 
 bot = Bot()
