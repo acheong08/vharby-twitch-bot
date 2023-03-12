@@ -1,8 +1,10 @@
 from twitchio.ext import commands
 from twitchio.message import Message
 from revChatGPT.V3 import Chatbot
+from EdgeGPT import Chatbot as Edgebot
 import os
 import re
+import time
 
 
 class CustomMsgDetails:
@@ -24,6 +26,8 @@ class Bot(commands.Bot):
         self.chatbot = Chatbot(
             api_key=os.environ.get("api_key"),
         )
+        self.edgebot = Edgebot(cookiePath="./cookies.json")
+        self.limit_timer = 0
 
     async def event_ready(self):
         # We are logged in and ready to chat and use commands...
@@ -58,12 +62,35 @@ class Bot(commands.Bot):
     async def handle_commands(
         self, context: commands.Context, msg_details: CustomMsgDetails
     ):
+        # If the timer is less than 20 seconds, return
+        if time.time() - self.limit_timer < 60:
+            return
         # Split the message into command and arguments
         command, *args = msg_details.message.split(" ")
         if command == "&chatgpt":
+            print("ChatGPT running")
             prompt = " ".join(args)
-            response = self.chatbot.ask(prompt)
-            await context.send(response)
+            response = self.chatbot.ask(prompt, max_tokens=100).replace("\n", "")
+            # Loop and send response in chunks of 200 characters
+            for i in range(0, len(response), 150):
+                await context.send(response[i : i + 150])
+                print("Sent: ", response[i : i + 150])
+                time.sleep(1.5)
+        elif command == "&ping":
+            await context.send(f"Pong! {msg_details.author}")
+        elif command == "&edgegpt":
+            print("EdgeGPT running")
+            prompt = " ".join(args)
+            response = await self.edgebot.ask(prompt=prompt)
+            response = response["item"]["messages"][1]["text"].replace("\n", "")
+            print("Response: ", response)
+            # Loop and send response in chunks of 200 characters
+            for i in range(0, len(response), 150):
+                await context.send(response[i : i + 150])
+                time.sleep(1.5)
+
+        # Set a timer to prevent spamming
+        self.limit_timer = time.time()
 
 
 bot = Bot()
